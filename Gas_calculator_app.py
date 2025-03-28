@@ -1,3 +1,4 @@
+
 import streamlit as st
 
 def invasive_ventilator_calculator():
@@ -11,7 +12,7 @@ def invasive_ventilator_calculator():
     fio2 = st.slider("Oxygen % (FiO2)", min_value=21, max_value=100, value=40)
 
     st.markdown("### Calculated Gas Consumption")
-    
+
     if weight > 0 and tidal_volume > 0 and rate > 0:
         minute_volume = (weight * tidal_volume / 1000) * rate  # in L/min
         oxygen_flow = minute_volume * (fio2 / 100)
@@ -27,11 +28,13 @@ def high_flow_calculator():
     st.subheader("High Flow CPAP Gas Consumption Calculator")
 
     fio2 = st.slider("Oxygen % (FiO2)", min_value=21, max_value=100, value=40)
-    journey_time = st.number_input("Journey Time (mins)", min_value=0, step=1, value=60)
-    set_flow = st.number_input("Set Flow (L/min)", min_value=0.0, step=0.1, value=8.0)
+    journey_time = st.number_input("Journey Time (mins)", min_value=1, step=1, value=60)
+    set_flow = st.number_input("Set Flow (L/min)", min_value=0.1, step=0.1, value=8.0)
 
-    if set_flow > 0 and 21 <= fio2 <= 100:
-        o2_flow = set_flow * (fio2 - 21) / (100 - 21)
+    if 21 <= fio2 <= 100 and set_flow > 0:
+        # FiO2 formula based on air-oxygen blending
+        o2_ratio = (fio2 - 21) / (100 - 21)  # Blending ratio
+        o2_flow = set_flow * o2_ratio
         air_flow = set_flow - o2_flow
 
         total_o2 = o2_flow * journey_time
@@ -44,7 +47,7 @@ def high_flow_calculator():
         st.write(f"Total O2 Required: {total_o2:.2f} Litres")
         st.write(f"Total Air Required: {total_air:.2f} Litres")
     else:
-        st.info("Please enter valid values for FiO2 and set flow.")
+        st.info("Please enter valid values for FiO2 and Set Flow.")
 
 def main():
     st.title("Advanced Gas Consumption Calculator")
